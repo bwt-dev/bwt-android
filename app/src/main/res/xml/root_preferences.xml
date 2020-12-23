@@ -1,35 +1,85 @@
-<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <PreferenceCategory app:title="@string/messages_header">
-
-        <EditTextPreference
-            app:key="signature"
-            app:title="@string/signature_title"
-            app:useSimpleSummaryProvider="true" />
-
+    <PreferenceCategory app:title="Bitcoin Core">
         <ListPreference
-            app:defaultValue="reply"
-            app:entries="@array/reply_entries"
-            app:entryValues="@array/reply_values"
-            app:key="reply"
-            app:title="@string/reply_title"
+            app:defaultValue="bitcoin"
+            app:entries="@array/network_entries"
+            app:entryValues="@array/network_values"
+            app:key="network"
+            app:title="Network"
             app:useSimpleSummaryProvider="true" />
-
+        <EditTextPreference
+            app:key="bitcoind_url"
+            app:title="RPC URL"
+            app:useSimpleSummaryProvider="true" />
+        <EditTextPreference
+            app:key="bitcoind_auth"
+            app:title="Authentication (user:pass)"
+            app:useSimpleSummaryProvider="true" />
+        <EditTextPreference
+            app:key="bitcoind_wallet"
+            app:title="Wallet name" />
+        <EditTextPreference
+            app:key="bitcoind_dir"
+            app:title="Data Directory" />
     </PreferenceCategory>
 
-    <PreferenceCategory app:title="@string/sync_header">
+    <PreferenceCategory app:title="Wallet Tracking">
+        <EditTextPreference
+            app:key="xpubs"
+            app:title="Extended Public Keys (xpubs)"
+            app:summary="One per line. ypubz and zpubs are supported." />
+        <EditTextPreference
+            app:key="descriptors"
+            app:title="Script Descriptors"
+            app:summary="One per line." />
 
         <SwitchPreferenceCompat
-            app:key="sync"
-            app:title="@string/sync_title" />
-
-        <SwitchPreferenceCompat
-            app:dependency="sync"
-            app:key="attachment"
-            app:summaryOff="@string/attachment_summary_off"
-            app:summaryOn="@string/attachment_summary_on"
-            app:title="@string/attachment_title" />
-
+            app:key="rescan"
+            app:summaryOff="When disabled, only transactions made from now on will be visible."
+            app:summaryOn="A full rescan from genesis may take up to 20-60 minutes. To speed this up, set the rescan date to when the wallet was created."
+            app:title="Rescan historical transactions" />
+        <dev.bwt.app.DatePickerPreference
+            app:dependency="rescan"
+            app:key="rescan_since"
+            app:useSimpleSummaryProvider="true"
+            app:title="Rescan since date" />
+        <SeekBarPreference
+            app:defaultValue="20"
+            android:min="20"
+            android:max="1000"
+            app:showSeekBarValue="true"
+            app:key="gap_limit"
+            app:title="Gap limit" />
+        <SeekBarPreference
+            app:defaultValue="350"
+            android:min="20"
+            android:max="1000"
+            app:showSeekBarValue="true"
+            app:key="initial_import_size"
+            app:title="Initial import size" />
+        <SeekBarPreference
+            app:defaultValue="5"
+            android:min="1"
+            android:max="300"
+            app:showSeekBarValue="true"
+            app:key="poll_interval"
+            app:title="Poll interval (seconds)" />
     </PreferenceCategory>
 
+    <PreferenceCategory app:title="Server settings">
+        <EditTextPreference
+            app:defaultValue="127.0.0.1:50001"
+            app:key="electrum_addr"
+            app:title="Electrum server bind address"
+            app:useSimpleSummaryProvider="true" />
+        <SeekBarPreference
+            app:defaultValue="1"
+            android:min="0"
+            android:max="4"
+            app:showSeekBarValue="true"
+            app:key="verbose"
+            app:title="Verbosity level" />
+    </PreferenceCategory>
 </PreferenceScreen>

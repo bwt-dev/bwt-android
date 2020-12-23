@@ -10,6 +10,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.BitcoinWalletTracker">
         <activity
+            android:name=".SettingsActivity"
+            android:label="@string/title_activity_settings" />
+        <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
             android:theme="@style/Theme.BitcoinWalletTracker.NoActionBar">
@@ -21,4 +24,5 @@
         </activity>
     </application>
 
+    <uses-permission android:name="android.permission.INTERNET"/>
 </manifest>

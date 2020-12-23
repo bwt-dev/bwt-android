@@ -1,4 +1,17 @@
 <resources>
+    <!-- Network -->
+    <string-array name="network_entries">
+        <item>Mainnet</item>
+        <item>Testnet</item>
+        <item>Regtest</item>
+    </string-array>
+
+    <string-array name="network_values">
+        <item>bitcoin</item>
+        <item>testnet</item>
+        <item>regtest</item>
+    </string-array>
+
     <!-- Reply Preference -->
     <string-array name="reply_entries">
         <item>Reply</item>

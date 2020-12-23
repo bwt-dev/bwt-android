@@ -1,35 +1,48 @@
 package dev.bwt.app
 
+import android.content.Intent
 import android.os.Bundle
-import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.android.material.snackbar.Snackbar
-import androidx.appcompat.app.AppCompatActivity
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
-import android.util.Log
-
-import dev.bwt.NativeBitcoinWalletTracker
+import android.view.View
+import android.widget.TextView
+import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.preference.PreferenceManager
+import androidx.work.*
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.gson.Gson
+import dev.bwt.daemon.BwtConfig
 
 class MainActivity : AppCompatActivity() {
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(findViewById(R.id.toolbar))
 
-        findViewById<FloatingActionButton>(R.id.fab).setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show()
+        findViewById<FloatingActionButton>(R.id.btnSettings).setOnClickListener { view ->
+            //Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+            //        .setAction("Action", null).show()
+            val intent = Intent(this, SettingsActivity::class.java)
+            startActivity(intent)
+        }
+        findViewById<FloatingActionButton>(R.id.btnStart).setOnClickListener { view ->
+            startBwt()
         }
 
-        val bwt = NativeBitcoinWalletTracker();
-        val result = bwt.helloWorld("Foo");
-        Log.i("from rust", result)
+        observeWorker()
+        observeLogs()
 
+        val pref = getPreferences(MODE_PRIVATE)
+        if (intent.hasCategory("start-bwt")) {
+            startBwt()
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        // Inflate the menu; this adds items to the action bar if it is present.
         menuInflater.inflate(R.menu.menu_main, menu)
         return true
     }
@@ -42,5 +55,88 @@ class MainActivity : AppCompatActivity() {
             R.id.action_settings -> true
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    private fun startBwt() {
+        val config = getConfig()
+
+        Log.d("bwt-main", "starting with config $config")
+
+        val bwtWorkRequest = OneTimeWorkRequestBuilder<BwtWorker>()
+            .setInputData(workDataOf("JSON_CONFIG" to Gson().toJson(config)))
+            .build()
+        WorkManager.getInstance(applicationContext).enqueueUniqueWork(
+            WORK_NAME,
+            ExistingWorkPolicy.REPLACE,
+            bwtWorkRequest
+        )
+    }
+
+    private fun getConfig(): BwtConfig {
+        val pref = PreferenceManager.getDefaultSharedPreferences(this)
+        val getStr = { name: String -> if (pref.contains(name)) pref.getString(name, "") else null }
+        val getInt = { name: String -> if (pref.contains(name)) pref.getInt(name, 0) else null }
+
+        return BwtConfig(
+            network = getStr("network"),
+            bitcoindUrl = getStr("bitcoind_url"),
+            bitcoindAuth = getStr("bitcoind_auth"),
+            bitcoindWallet = getStr("bitcoind_wallet"),
+            bitcoindDir = getStr("bitcoind_dir"),
+            descriptors = getStr("descriptors")?.let { it.lines().toTypedArray() },
+            xpubs = getStr("xpubs")?.let { it.lines().toTypedArray() },
+            rescanSince = if (pref.getBoolean("rescan", false)) getInt("rescan_since") else null,
+            gapLimit = getInt("gap_limit"),
+            initialImportSize = getInt("initial_import_size"),
+            pollInterval = getInt("poll_interval")?.let { arrayOf(it, 0) },
+            electrumAddr = getStr("electrum_addr"),
+            httpAddr = "0.0.0.0:3060", // getStr("http_addr"),
+            verbose = getInt("verbose"),
+        )
+        // FIXME check for missing config options
+    }
+
+    private fun observeWorker() {
+        WorkManager.getInstance(applicationContext)
+            .getWorkInfosForUniqueWorkLiveData(WORK_NAME)
+            .observe(this, Observer { workInfos: List<WorkInfo> ->
+                Log.d("bwt-main", "observed ${workInfos.size} workers")
+                if (workInfos.isNotEmpty() && !workInfos[0].state.isFinished) {
+                    val progress = workInfos[0].progress
+                    val fProgress = progress.getFloat("PROGRESS", 0.0f)
+
+                    when (progress.getString("TYPE")) {
+                        "booting" -> Log.d("bwt-main", "worker progress booting")
+                        "scan" -> Log.d("bwt-main", "worker progress scan")
+                        "sync" -> Log.d("bwt-main", "worker progress sync")
+                        "ready" -> Log.d("bwt-main", "worker progress ready")
+                    }
+                } else {
+                    Log.d("bwt-main", "worker inactive")
+                }
+                // TODO check workInfo.outputData for errors
+            })
+    }
+
+    private fun observeLogs() {
+        val logCatViewModel by viewModels<LogCatViewModel>()
+        //val logView = findViewById<View>(R.layout.fragment_first).findViewById<TextView>(R.id.textview_first)
+        logCatViewModel.logCatOutput().observe(this, Observer{ logMessage ->
+          //  logView.append("$logMessage\n")
+          //  Log.i("bwt-main", "log: $logMessage")
+        })
+    }
+
+    private fun stopBwt() {
+        /*with (PreferenceManager.getDefaultSharedPreferences(this).edit()) {
+            putBoolean("run", false)
+            commit()
+        }*/
+
+        WorkManager.getInstance(applicationContext).cancelUniqueWork(WORK_NAME)
+    }
+
+    companion object {
+        const val WORK_NAME = "bwt-daemon"
     }
 }

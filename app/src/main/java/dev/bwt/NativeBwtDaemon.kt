@@ -1,12 +1,16 @@
 package dev.bwt
 
-class NativeBitcoinWalletTracker {
+class NativeBwtDaemon {
     init {
         System.loadLibrary("bwt")
     }
 
-    external fun helloWorld(x: String): String;
+    // Start the bwt daemon with the configured servers
+    // Blocks until the initial indexing is completed and the servers are ready.
+    // Returns a pointer to be used with shutdown()
     external fun start(jsonConfig: String, callback: CallbackNotifier): Long;
+
+    // Shutdown thw bwt daemon
     external fun shutdown(shutdownPtr: Long);
 }
 
