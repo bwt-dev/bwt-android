@@ -51,65 +51,7 @@ class BwtDaemon(
                 callback?.onReady(this@BwtDaemon)
             }
         })
-
-        //shutdownPtr = null
     }
-
-    /*
-
-    companion object {
-        suspend fun init(
-            config: BwtConfig,
-            callback: ProgressNotifier? = null
-        ): BwtDaemon = withContext(
-            Dispatchers.IO
-        ) {
-            initBlocking(config, callback)
-        }
-
-        fun initBlocking(config: BwtConfig, callback: ProgressNotifier? = null): BwtDaemon {
-            val jsonConfig = Gson().toJson(config)
-            var electrumAddr: String? = null
-            var httpAddr: String? = null
-            var shutdownPtr: Long? = null
-
-            NativeBwtDaemon.start(jsonConfig, object : CallbackNotifier {
-                override fun onBooting() {
-                    Log.d("bwt", "booting")
-                }
-
-                override fun onSyncProgress(progress: Float, tip: Int) {
-                    Log.d("bwt", "sync progress ${progress * 100}%")
-                    callback?.onSyncProgress(progress, tip)
-                }
-
-                override fun onScanProgress(progress: Float, eta: Int) {
-                    Log.d("bwt", "scan progress ${progress * 100}%")
-                    callback?.onScanProgress(progress, eta)
-                }
-
-                override fun onElectrumReady(addr: String) {
-                    Log.d("bwt", "electrum ready on $addr")
-                    electrumAddr = addr
-                }
-
-                override fun onHttpReady(addr: String) {
-                    Log.d("bwt", "http ready on $addr")
-                    httpAddr = addr
-                }
-
-                override fun onReady(shutdownPtr_: Long) {
-                    Log.d("bwt", "services ready, starting background sync")
-                    shutdownPtr = shutdownPtr_
-                    callback?.onReady()
-                }
-            })
-
-            Log.i("bwt", "all ready")
-
-            return BwtDaemon(shutdownPtr, electrumAddr, httpAddr)
-        }
-    }*/
 
     fun shutdown() {
         Log.d("bwt-daemon","shutdown $shutdownPtr")
@@ -122,7 +64,7 @@ class BwtDaemon(
 
 interface ProgressNotifier {
     fun onBooting() {};
-    fun onSyncProgress(progress: Float, tipUnix: Date) {};
+    fun onSyncProgress(progress: Float, tip: Date) {};
     fun onScanProgress(progress: Float, eta: Int) {};
     fun onReady(bwt: BwtDaemon) {};
 }

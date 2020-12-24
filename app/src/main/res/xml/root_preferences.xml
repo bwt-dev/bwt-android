@@ -2,38 +2,27 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <PreferenceCategory app:title="Bitcoin Core">
-        <ListPreference
-            app:defaultValue="bitcoin"
-            app:entries="@array/network_entries"
-            app:entryValues="@array/network_values"
-            app:key="network"
-            app:title="Network"
-            app:useSimpleSummaryProvider="true" />
         <EditTextPreference
             app:key="bitcoind_url"
             app:title="RPC URL"
             app:useSimpleSummaryProvider="true" />
         <EditTextPreference
             app:key="bitcoind_auth"
-            app:title="Authentication (user:pass)"
-            app:useSimpleSummaryProvider="true" />
+            app:title="Authentication" />
         <EditTextPreference
             app:key="bitcoind_wallet"
             app:title="Wallet name" />
-        <EditTextPreference
-            app:key="bitcoind_dir"
-            app:title="Data Directory" />
     </PreferenceCategory>
 
     <PreferenceCategory app:title="Wallet Tracking">
         <EditTextPreference
             app:key="xpubs"
-            app:title="Extended Public Keys (xpubs)"
-            app:summary="One per line. ypubz and zpubs are supported." />
+            app:summary="One per line. ypubz and zpubs are supported."
+            app:title="Extended Public Keys (xpubs)" />
         <EditTextPreference
             app:key="descriptors"
-            app:title="Script Descriptors"
-            app:summary="One per line." />
+            app:summary="One per line."
+            app:title="Script Descriptors" />
 
         <SwitchPreferenceCompat
             app:key="rescan"
@@ -43,43 +32,52 @@
         <dev.bwt.app.DatePickerPreference
             app:dependency="rescan"
             app:key="rescan_since"
-            app:useSimpleSummaryProvider="true"
-            app:title="Rescan since date" />
-        <SeekBarPreference
-            app:defaultValue="20"
-            android:min="20"
-            android:max="1000"
-            app:showSeekBarValue="true"
-            app:key="gap_limit"
-            app:title="Gap limit" />
-        <SeekBarPreference
-            app:defaultValue="350"
-            android:min="20"
-            android:max="1000"
-            app:showSeekBarValue="true"
-            app:key="initial_import_size"
-            app:title="Initial import size" />
-        <SeekBarPreference
-            app:defaultValue="5"
-            android:min="1"
-            android:max="300"
-            app:showSeekBarValue="true"
-            app:key="poll_interval"
-            app:title="Poll interval (seconds)" />
+            app:title="Rescan since date"
+            app:useSimpleSummaryProvider="true" />
     </PreferenceCategory>
 
-    <PreferenceCategory app:title="Server settings">
+    <PreferenceCategory
+        app:initialExpandedChildrenCount="0"
+        app:key="advanced">
+        <ListPreference
+            app:defaultValue="bitcoin"
+            app:entries="@array/network_entries"
+            app:entryValues="@array/network_values"
+            app:key="network"
+            app:title="Network"
+            app:useSimpleSummaryProvider="true" />
         <EditTextPreference
             app:defaultValue="127.0.0.1:50001"
             app:key="electrum_addr"
             app:title="Electrum server bind address"
             app:useSimpleSummaryProvider="true" />
         <SeekBarPreference
-            app:defaultValue="1"
-            android:min="0"
-            android:max="4"
+            android:max="500"
+            android:min="20"
+            app:defaultValue="20"
+            app:key="gap_limit"
             app:showSeekBarValue="true"
+            app:title="Gap limit" />
+        <SeekBarPreference
+            android:max="1000"
+            android:min="20"
+            app:defaultValue="350"
+            app:key="initial_import_size"
+            app:showSeekBarValue="true"
+            app:title="Initial import size" />
+        <SeekBarPreference
+            android:max="300"
+            android:min="1"
+            app:defaultValue="5"
+            app:key="poll_interval"
+            app:showSeekBarValue="true"
+            app:title="Poll interval (seconds)" />
+        <SeekBarPreference
+            android:max="4"
+            android:min="0"
+            app:defaultValue="1"
             app:key="verbose"
+            app:showSeekBarValue="true"
             app:title="Verbosity level" />
     </PreferenceCategory>
 </PreferenceScreen>

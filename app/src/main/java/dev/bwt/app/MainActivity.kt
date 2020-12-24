@@ -6,14 +6,10 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.TextView
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.preference.PreferenceManager
 import androidx.work.*
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.gson.Gson
 import dev.bwt.daemon.BwtConfig
 
@@ -23,21 +19,10 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         setSupportActionBar(findViewById(R.id.toolbar))
 
-        findViewById<FloatingActionButton>(R.id.btnSettings).setOnClickListener { view ->
-            //Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-            //        .setAction("Action", null).show()
-            val intent = Intent(this, SettingsActivity::class.java)
-            startActivity(intent)
-        }
-        findViewById<FloatingActionButton>(R.id.btnStart).setOnClickListener { view ->
-            startBwt()
-        }
-
         observeWorker()
         observeLogs()
 
-        val pref = getPreferences(MODE_PRIVATE)
-        if (intent.hasCategory("start-bwt")) {
+        if (intent.action == "dev.bwt.app.START_BWT") {
             startBwt()
         }
     }
@@ -82,7 +67,6 @@ class MainActivity : AppCompatActivity() {
             bitcoindUrl = getStr("bitcoind_url"),
             bitcoindAuth = getStr("bitcoind_auth"),
             bitcoindWallet = getStr("bitcoind_wallet"),
-            bitcoindDir = getStr("bitcoind_dir"),
             descriptors = getStr("descriptors")?.let { it.lines().toTypedArray() },
             xpubs = getStr("xpubs")?.let { it.lines().toTypedArray() },
             rescanSince = if (pref.getBoolean("rescan", false)) getInt("rescan_since") else null,
@@ -119,12 +103,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun observeLogs() {
-        val logCatViewModel by viewModels<LogCatViewModel>()
+        //val logCatViewModel by viewModels<LogCatViewModel>()
         //val logView = findViewById<View>(R.layout.fragment_first).findViewById<TextView>(R.id.textview_first)
-        logCatViewModel.logCatOutput().observe(this, Observer{ logMessage ->
-          //  logView.append("$logMessage\n")
-          //  Log.i("bwt-main", "log: $logMessage")
-        })
+        //logCatViewModel.logCatOutput().observe(this, Observer{ logMessage ->
+        //  logView.append("$logMessage\n")
+        //  Log.i("bwt-main", "log: $logMessage")
+        //})
     }
 
     private fun stopBwt() {
@@ -134,6 +118,16 @@ class MainActivity : AppCompatActivity() {
         }*/
 
         WorkManager.getInstance(applicationContext).cancelUniqueWork(WORK_NAME)
+    }
+
+    fun onClickSettings(view: View) {
+        Log.d("bwt-main", "mainActivity onClickSettings")
+        startActivity(Intent(this, SettingsActivity::class.java))
+    }
+
+    fun onClickStart(view: View) {
+        Log.d("bwt-main", "mainActivity onClickStart")
+        startBwt()
     }
 
     companion object {

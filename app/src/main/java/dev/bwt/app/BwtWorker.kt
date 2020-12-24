@@ -101,7 +101,7 @@ class BwtWorker(
                 Log.e("bwt-worker", "shut down")
                 Result.success()
             } catch (e: BwtException) {
-                Log.e("bwt-worker", "bwt error: $e")
+                Log.e("bwt-worker", "bwt error: ${e.message}")
                 bwt.shutdown()
                 reportError(e)
                 Result.retry()
@@ -115,7 +115,7 @@ class BwtWorker(
     }
 
     private suspend fun reportError(e: Exception) {
-        setProgress(workDataOf("TYPE" to "error", "MESSAGE" to e.toString()))
+        setProgress(workDataOf("TYPE" to "error", "MESSAGE" to e.message))
     }
 
     private fun createForegroundInfo(text: String): ForegroundInfo {

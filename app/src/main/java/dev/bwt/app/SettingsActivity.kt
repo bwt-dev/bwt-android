@@ -39,11 +39,18 @@ class SettingsActivity : AppCompatActivity() {
             bitcoindAuth?.setOnBindEditTextListener { editText -> editText.isSingleLine = true }
             val bitcoindWallet: EditTextPreference? = findPreference("bitcoind_wallet")
             bitcoindWallet?.setOnBindEditTextListener { editText -> editText.isSingleLine = true }
-            val bitcoindDir: EditTextPreference? = findPreference("bitcoind_dir")
-            bitcoindDir?.setOnBindEditTextListener { editText -> editText.isSingleLine = true }
             val electrumAddr: EditTextPreference? = findPreference("electrum_addr")
             electrumAddr?.setOnBindEditTextListener { editText -> editText.isSingleLine = true }
 
+            bitcoindAuth?.summaryProvider =
+                Preference.SummaryProvider<EditTextPreference> { preference ->
+                    val text = preference.text
+                    if (TextUtils.isEmpty(text)) {
+                        "In \"username:password\" format."
+                    } else {
+                        text
+                    }
+                }
             bitcoindWallet?.summaryProvider =
                 Preference.SummaryProvider<EditTextPreference> { preference ->
                     val text = preference.text
@@ -53,28 +60,6 @@ class SettingsActivity : AppCompatActivity() {
                         text
                     }
                 }
-            bitcoindDir?.summaryProvider =
-                Preference.SummaryProvider<EditTextPreference> { preference ->
-                    val text = preference.text
-                    if (TextUtils.isEmpty(text)) {
-                        "For the cookie file (local bitcoind only). Leave blank to use the username/password."
-                    } else {
-                        text
-                    }
-                }
-            /*
-            val gapLimit: EditTextPreference? = findPreference("gap_limit")
-            gapLimit?.setOnBindEditTextListener { editText ->
-                editText.inputType = InputType.TYPE_CLASS_NUMBER
-            }
-            val initialImportSize: EditTextPreference? = findPreference("initial_import_size")
-            initialImportSize?.setOnBindEditTextListener { editText ->
-                editText.inputType = InputType.TYPE_CLASS_NUMBER
-            }
-            val pollInterval: EditTextPreference? = findPreference("poll_interval")
-            pollInterval?.setOnBindEditTextListener { editText ->
-                editText.inputType = InputType.TYPE_CLASS_NUMBER
-            }*/
         }
 
         override fun onDisplayPreferenceDialog(preference: Preference?) {
@@ -97,12 +82,10 @@ class DatePickerPreference(context: Context?, attrs: AttributeSet?) : DialogPref
     fun getPersistedDate(): Date {
         // defaults to 2013-01-10, the date BIP 30 was proposed
         val unixTs = super.getPersistedInt(1378771200)
-        Log.d("bwt", "loaded unixts $unixTs, date ${Date(unixTs.toLong() * 1000)}")
         return Date(unixTs.toLong() * 1000)
     }
 
     fun persistDate(date: Date) {
-        Log.d("bwt", "saving $date, ts ${(date.time / 1000).toInt()}")
         super.persistInt((date.time / 1000).toInt())
         notifyChanged()
     }
@@ -130,7 +113,6 @@ class DatePickerPreferenceDialog : PreferenceDialogFragmentCompat() {
         super.onBindDialogView(view)
         var cal = Calendar.getInstance()
         cal.time = (preference as DatePickerPreference).getPersistedDate()
-        Log.d("bwt", "onBindDialogView $cal")
 
         datepicker.updateDate(
             cal.get(Calendar.YEAR),
@@ -143,7 +125,6 @@ class DatePickerPreferenceDialog : PreferenceDialogFragmentCompat() {
         if (positiveResult) {
             var cal = Calendar.getInstance()
             cal.set(datepicker.year, datepicker.month, datepicker.dayOfMonth)
-            Log.d("bwt", "onDialogClosed persist $cal")
             (preference as DatePickerPreference).persistDate(cal.time)
             val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
             preference.summary = formatter.format(cal.time)

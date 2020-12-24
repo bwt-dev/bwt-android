@@ -10,8 +10,8 @@ import kotlinx.coroutines.Dispatchers
 
 class LogCatViewModel : ViewModel() {
     fun logCatOutput() = liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
-        Runtime.getRuntime().exec("logcat -c")
-        Runtime.getRuntime().exec("logcat")
+        // Runtime.getRuntime().exec("logcat -c")
+        Runtime.getRuntime().exec(arrayOf("sh", "-c", "logcat -b main -v tag -T 100 | grep --line-buffered -E '^[A-Z]/(bwt|bitcoin)'"))
             .inputStream
             .bufferedReader()
             .useLines { lines ->
@@ -19,3 +19,4 @@ class LogCatViewModel : ViewModel() {
             }
     }
 }
+
