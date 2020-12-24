@@ -7,6 +7,7 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.Button
 import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -85,6 +86,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun observeWorker() {
+        val btnStart = findViewById<Button>(R.id.button_start)!!
+        val btnStop = findViewById<Button>(R.id.button_stop)
+
         WorkManager.getInstance(applicationContext)
             .getWorkInfosForUniqueWorkLiveData(WORK_NAME)
             .observe(this, Observer { workInfos: List<WorkInfo> ->
@@ -99,16 +103,23 @@ class MainActivity : AppCompatActivity() {
                         "sync" -> Log.d("bwt-main", "worker progress sync")
                         "ready" -> Log.d("bwt-main", "worker progress ready")
                     }
+
+                    btnStart.visibility = View.INVISIBLE
+                    btnStop.visibility = View.VISIBLE
+
                 } else {
                     Log.d("bwt-main", "worker inactive")
+                    btnStart.visibility = View.VISIBLE
+                    btnStop.visibility = View.INVISIBLE
                 }
                 // TODO check workInfo.outputData for errors
             })
     }
 
     private fun observeLogs(logView: TextView) {
-        val logCatViewModel by viewModels<LogCatViewModel>()
         logView.movementMethod = ScrollingMovementMethod() // auto scroll
+
+        val logCatViewModel by viewModels<LogCatViewModel>()
         logCatViewModel.logCatOutput().observe(this, Observer { logMessage ->
             logView.append("$logMessage\n")
         })
@@ -123,14 +134,19 @@ class MainActivity : AppCompatActivity() {
         WorkManager.getInstance(applicationContext).cancelUniqueWork(WORK_NAME)
     }
 
+    @Suppress("UNUSED_PARAMETER")
     fun onClickSettings(view: View) {
-        Log.d("bwt-main", "mainActivity onClickSettings")
         startActivity(Intent(this, SettingsActivity::class.java))
     }
 
+    @Suppress("UNUSED_PARAMETER")
     fun onClickStart(view: View) {
-        Log.d("bwt-main", "mainActivity onClickStart")
         startBwt()
+    }
+
+    @Suppress("UNUSED_PARAMETER")
+    fun onClickStop(view: View) {
+        stopBwt()
     }
 
     companion object {
