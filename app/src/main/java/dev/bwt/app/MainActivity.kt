@@ -2,11 +2,15 @@ package dev.bwt.app
 
 import android.content.Intent
 import android.os.Bundle
+import android.text.method.ScrollingMovementMethod
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.TextView
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.preference.PreferenceManager
 import androidx.work.*
@@ -20,7 +24,7 @@ class MainActivity : AppCompatActivity() {
         setSupportActionBar(findViewById(R.id.toolbar))
 
         observeWorker()
-        observeLogs()
+        observeLogs(findViewById(R.id.logview))
 
         if (intent.action == "dev.bwt.app.START_BWT") {
             startBwt()
@@ -102,13 +106,12 @@ class MainActivity : AppCompatActivity() {
             })
     }
 
-    private fun observeLogs() {
-        //val logCatViewModel by viewModels<LogCatViewModel>()
-        //val logView = findViewById<View>(R.layout.fragment_first).findViewById<TextView>(R.id.textview_first)
-        //logCatViewModel.logCatOutput().observe(this, Observer{ logMessage ->
-        //  logView.append("$logMessage\n")
-        //  Log.i("bwt-main", "log: $logMessage")
-        //})
+    private fun observeLogs(logView: TextView) {
+        val logCatViewModel by viewModels<LogCatViewModel>()
+        logView.movementMethod = ScrollingMovementMethod() // auto scroll
+        logCatViewModel.logCatOutput().observe(this, Observer { logMessage ->
+            logView.append("$logMessage\n")
+        })
     }
 
     private fun stopBwt() {
