@@ -20,33 +20,33 @@ class BwtDaemon(
         val jsonConfig = Gson().toJson(config)
         NativeBwtDaemon.start(jsonConfig, object : CallbackNotifier {
             override fun onBooting() {
-                Log.d("bwt-daemon", "booting")
+                Log.v("bwt-daemon", "booting")
                 callback?.onBooting()
             }
 
             override fun onSyncProgress(progress: Float, tipUnix: Int) {
                 val tipDate = Date(tipUnix.toLong() * 1000)
-                Log.d("bwt-daemon", "sync progress ${progress * 100}%")
+                Log.v("bwt-daemon", "sync progress ${progress * 100}%")
                 callback?.onSyncProgress(progress, tipDate)
             }
 
             override fun onScanProgress(progress: Float, eta: Int) {
-                Log.d("bwt-daemon", "scan progress ${progress * 100}%")
+                Log.v("bwt-daemon", "scan progress ${progress * 100}%")
                 callback?.onScanProgress(progress, eta)
             }
 
             override fun onElectrumReady(addr: String) {
-                Log.d("bwt-daemon", "electrum ready on $addr")
+                Log.v("bwt-daemon", "electrum ready on $addr")
                 electrumAddr = addr
             }
 
             override fun onHttpReady(addr: String) {
-                Log.d("bwt-daemon", "http ready on $addr")
+                Log.v("bwt-daemon", "http ready on $addr")
                 httpAddr = addr
             }
 
             override fun onReady(shutdownPtr_: Long) {
-                Log.d("bwt-daemon", "services ready, starting background sync")
+                Log.v("bwt-daemon", "services ready, starting background sync")
                 shutdownPtr = shutdownPtr_
                 callback?.onReady(this@BwtDaemon)
             }
@@ -54,7 +54,7 @@ class BwtDaemon(
     }
 
     fun shutdown() {
-        Log.d("bwt-daemon","shutdown $shutdownPtr")
+        Log.v("bwt-daemon","shutdown $shutdownPtr")
         if (shutdownPtr != null) {
             NativeBwtDaemon.shutdown(shutdownPtr!!)
             shutdownPtr = null
