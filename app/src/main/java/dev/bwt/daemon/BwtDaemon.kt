@@ -37,17 +37,17 @@ class BwtDaemon(
             }
 
             override fun onElectrumReady(addr: String) {
-                Log.v("bwt-daemon", "electrum ready on $addr")
+                Log.d("bwt-daemon", "electrum ready on $addr")
                 electrumAddr = addr
             }
 
             override fun onHttpReady(addr: String) {
-                Log.v("bwt-daemon", "http ready on $addr")
+                Log.d("bwt-daemon", "http ready on $addr")
                 httpAddr = addr
             }
 
             override fun onReady(shutdownPtr_: Long) {
-                Log.v("bwt-daemon", "services ready, starting background sync")
+                Log.v("bwt-daemon", "bwt is ready")
                 shutdownPtr = shutdownPtr_
                 if (!terminate) callback?.onReady(this@BwtDaemon)
                 else shutdown()

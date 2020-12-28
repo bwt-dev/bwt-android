@@ -2,21 +2,24 @@ package dev.bwt.app
 
 import android.content.Intent
 import android.os.Bundle
+import android.text.format.DateUtils
 import android.text.method.ScrollingMovementMethod
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.Button
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.preference.PreferenceManager
 import androidx.work.*
 import com.google.gson.Gson
 import dev.bwt.daemon.BwtConfig
+import java.text.SimpleDateFormat
+import java.util.*
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -50,7 +53,8 @@ class MainActivity : AppCompatActivity() {
     private fun startBwt() {
         val config = getConfig()
 
-        Log.d("bwt-main", "starting with config $config")
+        Log.i("bwt-main", "Starting with config $config")
+        findViewById<TextView>(R.id.text_status).text = "Starting bwt..."
 
         val bwtWorkRequest = OneTimeWorkRequestBuilder<BwtWorker>()
             .setInputData(workDataOf("JSON_CONFIG" to Gson().toJson(config)))
@@ -88,31 +92,68 @@ class MainActivity : AppCompatActivity() {
     private fun observeWorker() {
         val btnStart = findViewById<Button>(R.id.button_start)!!
         val btnStop = findViewById<Button>(R.id.button_stop)
+        val textStatus = findViewById<TextView>(R.id.text_status)
+        val progressBar = findViewById<ProgressBar>(R.id.progressBar)
 
         WorkManager.getInstance(applicationContext)
             .getWorkInfosForUniqueWorkLiveData(WORK_NAME)
             .observe(this, Observer { workInfos: List<WorkInfo> ->
-                Log.d("bwt-main", "observed ${workInfos.size} workers")
+                Log.v("bwt-main", "observed ${workInfos.size} workers")
+
                 if (workInfos.isNotEmpty() && !workInfos[0].state.isFinished) {
                     val progress = workInfos[0].progress
-                    val fProgress = progress.getFloat("PROGRESS", 0.0f)
+                    var type = progress.getString("TYPE")
+                    val nProgress = progress.getFloat("PROGRESS", 0.0f)
+                    val nProgressStr = "%.1f".format(nProgress * 100)
 
-                    when (progress.getString("TYPE")) {
-                        "booting" -> Log.d("bwt-main", "worker progress booting")
-                        "scan" -> Log.d("bwt-main", "worker progress scan")
-                        "sync" -> Log.d("bwt-main", "worker progress sync")
-                        "ready" -> Log.d("bwt-main", "worker progress ready")
+                    Log.v("bwt-main", "worker progress $progress")
+
+                    // switch back to a generic "Booting up" message and an indeterminate
+                    //  progress bar when syncing/scanning is completed
+                    if ((type == "scan" || type == "sync") && nProgress == 1.0f) {
+                        type = "booting"
+                    }
+
+                    when (type) {
+                        "booting" -> {
+                            textStatus.text = "Booting up..."
+                            progressBar.visibility = View.VISIBLE
+                            progressBar.isIndeterminate = true
+                        }
+                        "scan" -> {
+                            val etaStr = DateUtils.formatElapsedTime(progress.getInt("ETA", 0).toLong())
+                            progressBar.isIndeterminate = false
+                            progressBar.progress = (nProgress*100).toInt()
+                            textStatus.text = "Wallet scanning in progress... $nProgressStr% done, $etaStr remaining"
+                        }
+                        "sync" -> {
+                            val tip = Date(progress.getInt("TIP", 0).toLong())
+                            progressBar.isIndeterminate = false
+                            progressBar.progress = (nProgress*100).toInt()
+                            textStatus.text = "Block syncing in progress... $nProgressStr% done, tip at ${fmtDate(tip)}"
+                        }
+                        "ready" -> {
+                            textStatus.text = "Daemon running"
+                            progressBar.visibility = View.INVISIBLE
+                        }
+                        null -> {}
+                        else -> throw RuntimeException("Unknown worker message $type")
                     }
 
                     btnStart.visibility = View.INVISIBLE
                     btnStop.visibility = View.VISIBLE
-
                 } else {
-                    Log.d("bwt-main", "worker inactive")
                     btnStart.visibility = View.VISIBLE
                     btnStop.visibility = View.INVISIBLE
+                    progressBar.visibility = View.INVISIBLE
+
+                    val errorMessage = workInfos.elementAtOrNull(0)?.outputData?.getString("ERROR")
+                    if (errorMessage != null) {
+                        textStatus.text = "Error: $errorMessage"
+                    } else {
+                        textStatus.text = "Not running"
+                    }
                 }
-                // TODO check workInfo.outputData for errors
             })
     }
 
@@ -131,6 +172,7 @@ class MainActivity : AppCompatActivity() {
             commit()
         }*/
 
+        findViewById<TextView>(R.id.text_status).text = "Stopping bwt..."
         WorkManager.getInstance(applicationContext).cancelUniqueWork(WORK_NAME)
     }
 
@@ -152,4 +194,9 @@ class MainActivity : AppCompatActivity() {
     companion object {
         const val WORK_NAME = "bwt-daemon"
     }
+}
+
+private fun fmtDate(date: Date): String {
+    val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+    return formatter.format(date)
 }
