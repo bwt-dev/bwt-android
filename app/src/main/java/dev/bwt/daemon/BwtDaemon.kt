@@ -15,24 +15,25 @@ class BwtDaemon(
     var shutdownPtr: Long? = null;
     var electrumAddr: String? = null;
     var httpAddr: String? = null;
+    var terminate: Boolean = false;
 
     fun start(callback: ProgressNotifier? = null) {
         val jsonConfig = Gson().toJson(config)
         NativeBwtDaemon.start(jsonConfig, object : CallbackNotifier {
             override fun onBooting() {
                 Log.v("bwt-daemon", "booting")
-                callback?.onBooting()
+                if (!terminate) callback?.onBooting()
             }
 
             override fun onSyncProgress(progress: Float, tipUnix: Int) {
                 val tipDate = Date(tipUnix.toLong() * 1000)
                 Log.v("bwt-daemon", "sync progress ${progress * 100}%")
-                callback?.onSyncProgress(progress, tipDate)
+                if (!terminate) callback?.onSyncProgress(progress, tipDate)
             }
 
             override fun onScanProgress(progress: Float, eta: Int) {
                 Log.v("bwt-daemon", "scan progress ${progress * 100}%")
-                callback?.onScanProgress(progress, eta)
+                if (!terminate) callback?.onScanProgress(progress, eta)
             }
 
             override fun onElectrumReady(addr: String) {
@@ -48,7 +49,8 @@ class BwtDaemon(
             override fun onReady(shutdownPtr_: Long) {
                 Log.v("bwt-daemon", "services ready, starting background sync")
                 shutdownPtr = shutdownPtr_
-                callback?.onReady(this@BwtDaemon)
+                if (!terminate) callback?.onReady(this@BwtDaemon)
+                else shutdown()
             }
         })
     }
@@ -58,6 +60,9 @@ class BwtDaemon(
         if (shutdownPtr != null) {
             NativeBwtDaemon.shutdown(shutdownPtr!!)
             shutdownPtr = null
+        } else {
+            // We cannot shutdown yet, mark the daemon for termination when it becomes possible
+            terminate = true
         }
     }
 }
