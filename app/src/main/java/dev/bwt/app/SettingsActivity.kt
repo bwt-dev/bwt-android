@@ -60,6 +60,12 @@ class SettingsActivity : AppCompatActivity() {
                         text
                     }
                 }
+
+            val verbose: SeekBarPreference? = findPreference("verbose")
+            verbose?.setOnPreferenceChangeListener { preference, newValue ->
+                preference.summary = "Changing this requires restarting the app."
+                true
+            }
         }
 
         override fun onDisplayPreferenceDialog(preference: Preference?) {
