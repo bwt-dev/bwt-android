@@ -52,6 +52,7 @@ class MainActivity : AppCompatActivity() {
         val config = getConfig()
 
         Log.i("bwt-main", "Starting with config $config")
+
         findViewById<TextView>(R.id.text_status).text = "Starting bwt..."
 
         val bwtWorkRequest = OneTimeWorkRequestBuilder<BwtWorker>()
@@ -74,8 +75,8 @@ class MainActivity : AppCompatActivity() {
             bitcoindUrl = getStr("bitcoind_url"),
             bitcoindAuth = getStr("bitcoind_auth"),
             bitcoindWallet = getStr("bitcoind_wallet"),
-            descriptors = getStr("descriptors")?.let { it.lines().toTypedArray() },
-            xpubs = getStr("xpubs")?.let { it.lines().toTypedArray() },
+            descriptors = getStr("descriptors")?.let { getLines(it) },
+            xpubs = getStr("xpubs")?.let { getLines(it) },
             rescanSince = if (pref.getBoolean("rescan", false)) getInt("rescan_since") else null,
             gapLimit = getInt("gap_limit"),
             initialImportSize = getInt("initial_import_size"),
@@ -196,3 +197,5 @@ class MainActivity : AppCompatActivity() {
     }
 }
 
+private fun getLines(str: String): Array<String> =
+    str.lines().filter { it.isNotBlank() }.toTypedArray()
