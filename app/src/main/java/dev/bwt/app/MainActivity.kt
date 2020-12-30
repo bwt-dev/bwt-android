@@ -82,8 +82,8 @@ class MainActivity : AppCompatActivity() {
             gapLimit = getInt("gap_limit"),
             initialImportSize = getInt("initial_import_size"),
             pollInterval = getInt("poll_interval")?.let { arrayOf(it, 0) },
-            electrumAddr = getStr("electrum_addr"),
-            httpAddr = "0.0.0.0:3060", // getStr("http_addr"),
+            electrumAddr = if (pref.getBoolean("electrum", false)) getStr("electrum_addr") else null,
+            httpAddr = if (pref.getBoolean("http", false)) getStr("http_addr") else null,
             verbose = getInt("verbose"),
         )
         // FIXME check for missing config options

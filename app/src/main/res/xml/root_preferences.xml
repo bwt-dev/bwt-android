@@ -2,6 +2,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <PreferenceCategory app:title="Bitcoin Core">
+        <ListPreference
+            app:defaultValue="bitcoin"
+            app:entries="@array/network_entries"
+            app:entryValues="@array/network_values"
+            app:key="network"
+            app:title="Network"
+            app:useSimpleSummaryProvider="true" />
         <EditTextPreference
             app:key="bitcoind_url"
             app:title="RPC URL"
@@ -39,18 +46,25 @@
     <PreferenceCategory
         app:initialExpandedChildrenCount="0"
         app:key="advanced">
-        <ListPreference
-            app:defaultValue="bitcoin"
-            app:entries="@array/network_entries"
-            app:entryValues="@array/network_values"
-            app:key="network"
-            app:title="Network"
-            app:useSimpleSummaryProvider="true" />
+        <SwitchPreferenceCompat
+            app:key="electrum"
+            app:defaultValue="true"
+            app:title="Enable Electrum server" />
         <EditTextPreference
             app:defaultValue="127.0.0.1:50001"
             app:key="electrum_addr"
             app:title="Electrum server bind address"
-            app:useSimpleSummaryProvider="true" />
+            app:useSimpleSummaryProvider="true"
+            app:dependency="electrum"/>
+        <SwitchPreferenceCompat
+            app:key="http"
+            app:title="Enable HTTP server" />
+        <EditTextPreference
+            app:defaultValue="127.0.0.1:3060"
+            app:key="http_addr"
+            app:title="HTTP server bind address"
+            app:useSimpleSummaryProvider="true"
+            app:dependency="http"/>
         <SeekBarPreference
             android:max="500"
             android:min="20"
