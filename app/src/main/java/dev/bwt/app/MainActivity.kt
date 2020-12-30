@@ -51,7 +51,7 @@ class MainActivity : AppCompatActivity() {
     private fun startBwt() {
         val config = getConfig()
 
-        Log.i("bwt-main", "Starting with config $config")
+        Log.i("bwt-main", "Starting with config ${scrubConfig(config)}")
 
         findViewById<TextView>(R.id.text_status).text = "Starting bwt..."
 
@@ -204,3 +204,11 @@ class MainActivity : AppCompatActivity() {
 
 private fun getLines(str: String): Array<String> =
     str.lines().filter { it.isNotBlank() }.toTypedArray()
+
+private fun scrubConfig(config: BwtConfig): String {
+    var str = config.toString()
+    config.bitcoindAuth?.let {
+        str = str.replace(it, "**SCRUBBED**")
+    }
+    return str
+}
