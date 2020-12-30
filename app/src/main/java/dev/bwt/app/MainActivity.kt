@@ -2,7 +2,6 @@ package dev.bwt.app
 
 import android.content.Intent
 import android.os.Bundle
-import android.text.format.DateUtils
 import android.text.method.ScrollingMovementMethod
 import android.util.Log
 import android.view.Menu
@@ -18,7 +17,6 @@ import androidx.preference.PreferenceManager
 import androidx.work.*
 import com.google.gson.Gson
 import dev.bwt.daemon.BwtConfig
-import java.text.SimpleDateFormat
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
@@ -122,16 +120,17 @@ class MainActivity : AppCompatActivity() {
                             progressBar.isIndeterminate = true
                         }
                         "scan" -> {
-                            val etaStr = DateUtils.formatElapsedTime(progress.getInt("ETA", 0).toLong())
+                            val eta = progress.getInt("ETA", 0)
+                            val etaStr = eta.fmtDur(nProgress > 0.4)
                             progressBar.isIndeterminate = false
-                            progressBar.progress = (nProgress*100).toInt()
+                            progressBar.progress = (nProgress * 100).toInt()
                             textStatus.text = "Wallet scanning in progress... $nProgressStr% done, $etaStr remaining"
                         }
                         "sync" -> {
                             val tip = Date(progress.getInt("TIP", 0).toLong())
                             progressBar.isIndeterminate = false
-                            progressBar.progress = (nProgress*100).toInt()
-                            textStatus.text = "Block syncing in progress... $nProgressStr% done, tip at ${fmtDate(tip)}"
+                            progressBar.progress = (nProgress * 100).toInt()
+                            textStatus.text = "Block syncing in progress... $nProgressStr% done, tip at ${tip.ymd()}"
                         }
                         "ready" -> {
                             textStatus.text = "Daemon running"
@@ -197,7 +196,3 @@ class MainActivity : AppCompatActivity() {
     }
 }
 
-private fun fmtDate(date: Date): String {
-    val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-    return formatter.format(date)
-}

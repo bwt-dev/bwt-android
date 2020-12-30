@@ -6,7 +6,6 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
-import android.text.format.DateUtils
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
@@ -20,7 +19,6 @@ import dev.bwt.daemon.ProgressNotifier
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.supervisorScope
-import java.text.SimpleDateFormat
 import java.util.*
 
 class BwtWorker(
@@ -51,7 +49,7 @@ class BwtWorker(
                     )
                 )
                 val progressStr = "%.1f".format(progress * 100.0)
-                val etaStr = DateUtils.formatElapsedTime(eta.toLong())
+                val etaStr = eta.fmtDur(progress > 0.4)
                 setForegroundAsync(createForegroundInfo("Wallet scanning in progress... $progressStr% done, $etaStr remaining"))
                 Log.v("bwt-worker", "scan progress $progressStr%, $etaStr remaining")
             }
@@ -65,7 +63,7 @@ class BwtWorker(
                     )
                 )
                 val progressStr = "%.1f".format(progress * 100.0)
-                val tipStr = fmtDate(tip)
+                val tipStr = tip.ymd()
                 setForegroundAsync(createForegroundInfo("Block syncing in progress... $progressStr% done, tip at $tipStr"))
                 Log.v("bwt-worker", "sync progress $progressStr% up to $tipStr")
             }
@@ -154,9 +152,4 @@ class BwtWorker(
         const val CHANNEL_ID = "BWT"
         const val NOTIFICATION_ID = 1
     }
-}
-
-private fun fmtDate(date: Date): String {
-    val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-    return formatter.format(date)
 }
