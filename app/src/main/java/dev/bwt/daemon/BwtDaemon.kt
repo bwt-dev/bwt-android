@@ -95,4 +95,5 @@ data class BwtConfig(
     @SerializedName("http_cors") var httpCors: Boolean? = null,
     @SerializedName("webhooks_urls") var webhookUrls: Array<String>? = null,
     @SerializedName("unix_listener_path") var unixListenerPath: String? = null,
+    @SerializedName("require_addresses") var requireAddresses: Boolean? = null,
 ) {}

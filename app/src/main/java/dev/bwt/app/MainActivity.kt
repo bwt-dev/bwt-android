@@ -85,6 +85,7 @@ class MainActivity : AppCompatActivity() {
             electrumAddr = if (pref.getBoolean("electrum", false)) getStr("electrum_addr") else null,
             httpAddr = if (pref.getBoolean("http", false)) getStr("http_addr") else null,
             verbose = getInt("verbose"),
+            requireAddresses = true,
         )
         // FIXME check for missing config options
     }
