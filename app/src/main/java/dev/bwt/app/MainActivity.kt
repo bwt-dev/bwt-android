@@ -129,6 +129,7 @@ class MainActivity : AppCompatActivity() {
 
                     when (type) {
                         "booting" -> {
+                            AppState.setIsRunning()
                             textStatus.text = "Booting up..."
                             progressBar.visibility = View.VISIBLE
                             progressBar.isIndeterminate = true
@@ -157,6 +158,8 @@ class MainActivity : AppCompatActivity() {
                     btnStart.visibility = View.INVISIBLE
                     btnStop.visibility = View.VISIBLE
                 } else {
+                    AppState.setNotRunning()
+
                     btnStart.visibility = View.VISIBLE
                     btnStop.visibility = View.INVISIBLE
                     progressBar.visibility = View.INVISIBLE
