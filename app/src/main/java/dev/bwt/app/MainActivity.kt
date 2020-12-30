@@ -70,6 +70,11 @@ class MainActivity : AppCompatActivity() {
         val getStr = { name: String -> if (pref.contains(name)) pref.getString(name, "") else null }
         val getInt = { name: String -> if (pref.contains(name)) pref.getInt(name, 0) else null }
 
+        val getStrIf = { bool_name: String, val_name: String ->
+            if (pref.getBoolean(bool_name, false)) getStr(val_name) else null }
+        val getIntIf = { bool_name: String, val_name: String ->
+            if (pref.getBoolean(bool_name, false)) getInt(val_name) else null }
+
         return BwtConfig(
             network = getStr("network"),
             bitcoindUrl = getStr("bitcoind_url"),
@@ -77,12 +82,12 @@ class MainActivity : AppCompatActivity() {
             bitcoindWallet = getStr("bitcoind_wallet"),
             descriptors = getStr("descriptors")?.let { getLines(it) },
             xpubs = getStr("xpubs")?.let { getLines(it) },
-            rescanSince = if (pref.getBoolean("rescan", false)) getInt("rescan_since") else null,
+            rescanSince = getIntIf("rescan", "rescan_since"),
             gapLimit = getInt("gap_limit"),
             initialImportSize = getInt("initial_import_size"),
             pollInterval = getInt("poll_interval")?.let { arrayOf(it, 0) },
-            electrumAddr = if (pref.getBoolean("electrum", false)) getStr("electrum_addr") else null,
-            httpAddr = if (pref.getBoolean("http", false)) getStr("http_addr") else null,
+            electrumAddr = getStrIf("electrum", "electrum_addr"),
+            httpAddr = getStrIf("http", "http_addr"),
             verbose = getInt("verbose"),
             requireAddresses = true,
         )

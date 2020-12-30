@@ -18,6 +18,7 @@ class BwtDaemon(
     var terminate: Boolean = false;
 
     fun start(callback: ProgressNotifier? = null) {
+        Log.v("bwt-daemon","starting")
         val jsonConfig = Gson().toJson(config)
         NativeBwtDaemon.start(jsonConfig, object : CallbackNotifier {
             override fun onBooting() {

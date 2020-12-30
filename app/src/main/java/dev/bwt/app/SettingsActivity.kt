@@ -105,7 +105,7 @@ class DatePickerPreferenceDialog : PreferenceDialogFragmentCompat() {
     override fun onCreateDialogView(context: Context?): View {
         val ctx = ContextThemeWrapper(context, R.style.CustomDatePickerDialogTheme)
         datepicker = DatePicker(ctx)
-        datepicker.calendarViewShown = false;
+        datepicker.calendarViewShown = false
         return datepicker
     }
 
