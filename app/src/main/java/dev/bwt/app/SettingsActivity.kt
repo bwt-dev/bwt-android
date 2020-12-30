@@ -1,11 +1,10 @@
 package dev.bwt.app
 
 import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
-import android.text.InputType
 import android.text.TextUtils
 import android.util.AttributeSet
-import android.util.Log
 import android.view.ContextThemeWrapper
 import android.view.View
 import android.widget.DatePicker
@@ -16,7 +15,6 @@ import java.util.*
 
 
 class SettingsActivity : AppCompatActivity() {
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.settings_activity)
@@ -29,9 +27,12 @@ class SettingsActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
     }
 
-    class SettingsFragment : PreferenceFragmentCompat() {
+    class SettingsFragment : PreferenceFragmentCompat(),
+        SharedPreferences.OnSharedPreferenceChangeListener {
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             setPreferencesFromResource(R.xml.root_preferences, rootKey)
+
+            preferenceManager.sharedPreferences.registerOnSharedPreferenceChangeListener(this)
 
             val bitcoindUrl: EditTextPreference? = findPreference("bitcoind_url")
             bitcoindUrl?.setOnBindEditTextListener { editText -> editText.isSingleLine = true }
@@ -68,6 +69,11 @@ class SettingsActivity : AppCompatActivity() {
             }
         }
 
+        override fun onDestroy() {
+            super.onDestroy()
+            preferenceManager.sharedPreferences.unregisterOnSharedPreferenceChangeListener(this)
+        }
+
         override fun onDisplayPreferenceDialog(preference: Preference?) {
             if (preference is DatePickerPreference) {
                 val datepickerdialog = DatePickerPreferenceDialog.newInstance(preference.key)
@@ -76,6 +82,10 @@ class SettingsActivity : AppCompatActivity() {
             } else {
                 super.onDisplayPreferenceDialog(preference)
             }
+        }
+
+        override fun onSharedPreferenceChanged(preferences: SharedPreferences, key: String) {
+            AppState.setSettingsChanged()
         }
     }
 }

@@ -10,6 +10,7 @@ import android.view.View
 import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
@@ -91,7 +92,6 @@ class MainActivity : AppCompatActivity() {
             verbose = getInt("verbose"),
             requireAddresses = true,
         )
-        // FIXME check for missing config options
     }
 
     private fun observeWorker() {
@@ -103,9 +103,17 @@ class MainActivity : AppCompatActivity() {
         WorkManager.getInstance(applicationContext)
             .getWorkInfosForUniqueWorkLiveData(WORK_NAME)
             .observe(this, Observer { workInfos: List<WorkInfo> ->
-                Log.v("bwt-main", "observed ${workInfos.size} workers")
+                Log.v("bwt-main", "observed worker: ${workInfos.elementAtOrNull(0)}")
+                val pendingSettingsUpdate = AppState.checkSettingsChanged()
 
                 if (workInfos.isNotEmpty() && !workInfos[0].state.isFinished) {
+                    // If the daemon is running and the settings were just updated, re-start it
+                    if (pendingSettingsUpdate) {
+                        Toast.makeText(applicationContext, "Setting updated, restarting daemon...", Toast.LENGTH_LONG).show()
+                        startBwt()
+                        return@Observer
+                    }
+
                     val progress = workInfos[0].progress
                     var type = progress.getString("TYPE")
                     val nProgress = progress.getFloat("PROGRESS", 0.0f)
