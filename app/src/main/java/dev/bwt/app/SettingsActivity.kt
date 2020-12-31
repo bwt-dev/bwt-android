@@ -43,6 +43,15 @@ class SettingsActivity : AppCompatActivity() {
             val electrumAddr: EditTextPreference? = findPreference("electrum_addr")
             electrumAddr?.setOnBindEditTextListener { editText -> editText.isSingleLine = true }
 
+            bitcoindUrl?.summaryProvider =
+                Preference.SummaryProvider<EditTextPreference> { preference ->
+                    val text = preference.text
+                    if (TextUtils.isEmpty(text)) {
+                        "Leave blank to connect to a local ABCore node."
+                    } else {
+                        text
+                    }
+                }
             bitcoindAuth?.summaryProvider =
                 Preference.SummaryProvider<EditTextPreference> { preference ->
                     val text = preference.text

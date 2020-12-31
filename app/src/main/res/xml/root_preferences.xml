@@ -11,8 +11,7 @@
             app:useSimpleSummaryProvider="true" />
         <EditTextPreference
             app:key="bitcoind_url"
-            app:title="RPC URL"
-            app:useSimpleSummaryProvider="true" />
+            app:title="RPC URL" />
         <EditTextPreference
             app:key="bitcoind_auth"
             app:title="Authentication" />
