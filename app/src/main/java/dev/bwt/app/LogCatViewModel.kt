@@ -6,7 +6,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 
 var CMD =
-    "logcat -b main -v tag {OPT} '*:V' bwt-daemon:D bwt-main:D | grep --line-buffered -E '^[A-Z]/(bwt|bitcoin)'"
+    "logcat -b main -v tag {OPT} '*:V' bwt-daemon:D bwt-main:D bwt-worker:D | grep --line-buffered -E '^[A-Z]/(bwt|bitcoin)'"
 
 class LogCatViewModel : ViewModel() {
     fun logCatOutput() = liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
@@ -28,6 +28,10 @@ class LogCatViewModel : ViewModel() {
             .useLines { lines ->
                 lines.forEach { line -> emit(line) }
             }
+    }
+
+    fun clearLog() {
+        Runtime.getRuntime().exec("logcat -b main --clear")
     }
 }
 

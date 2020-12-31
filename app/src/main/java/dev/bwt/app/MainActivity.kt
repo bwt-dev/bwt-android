@@ -21,13 +21,18 @@ import dev.bwt.daemon.BwtConfig
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
+    private val logCatViewModel by viewModels<LogCatViewModel>()
+    private lateinit var logView: TextView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(findViewById(R.id.toolbar))
 
+        logView = findViewById(R.id.logview)
+
         observeWorker()
-        observeLogs(findViewById(R.id.logview))
+        observeLogs()
 
         if (intent.action == "dev.bwt.app.START_BWT") {
             startBwt()
@@ -55,6 +60,7 @@ class MainActivity : AppCompatActivity() {
         Log.i("bwt-main", "Starting with config ${scrubConfig(config)}")
 
         findViewById<TextView>(R.id.text_status).text = "Starting bwt..."
+        clearLog()
 
         val bwtWorkRequest = OneTimeWorkRequestBuilder<BwtWorker>()
             .setInputData(workDataOf("JSON_CONFIG" to Gson().toJson(config)))
@@ -174,13 +180,16 @@ class MainActivity : AppCompatActivity() {
             })
     }
 
-    private fun observeLogs(logView: TextView) {
+    private fun observeLogs() {
         logView.movementMethod = ScrollingMovementMethod() // auto scroll
 
-        val logCatViewModel by viewModels<LogCatViewModel>()
         logCatViewModel.logCatOutput().observe(this, Observer { logMessage ->
             logView.append("$logMessage\n")
         })
+    }
+    private fun clearLog() {
+        logCatViewModel.clearLog()
+        logView.text = ""
     }
 
     private fun stopBwt() {
