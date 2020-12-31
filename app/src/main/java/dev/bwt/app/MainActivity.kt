@@ -96,7 +96,6 @@ class MainActivity : AppCompatActivity() {
             electrumAddr = getStrIf("electrum", "electrum_addr"),
             httpAddr = getStrIf("http", "http_addr"),
             verbose = getInt("verbose"),
-            requireAddresses = true,
         )
     }
 
