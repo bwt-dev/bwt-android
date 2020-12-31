@@ -96,7 +96,11 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         override fun onSharedPreferenceChanged(preferences: SharedPreferences, key: String) {
-            AppState.setSettingsChanged()
+            // Changing the 'verbose' option requires restarting the entire app, don't mark the
+            // daemon for automatic restart to avoid confusing the user.
+            if (key != "verbose") {
+                AppState.setPendingSettingsUpdate()
+            }
         }
     }
 }

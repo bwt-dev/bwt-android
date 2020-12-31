@@ -17,7 +17,7 @@ class AppState {
             daemonIsRunning = false
         }
 
-        fun setSettingsChanged() {
+        fun setPendingSettingsUpdate() {
             pendingSettingsUpdate = true
         }
         fun checkSettingsChanged(): Boolean {
