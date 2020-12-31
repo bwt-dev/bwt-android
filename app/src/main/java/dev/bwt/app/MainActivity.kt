@@ -154,7 +154,8 @@ class MainActivity : AppCompatActivity() {
                             textStatus.text = "Block syncing in progress... $nProgressStr% done, tip at ${tip.ymd()}"
                         }
                         "ready" -> {
-                            textStatus.text = "Daemon running"
+                            val services = progress.getStringArray("SERVICES")
+                            textStatus.text = "Daemon running (${services?.joinToString(" + ")})"
                             progressBar.visibility = View.INVISIBLE
                         }
                         null -> {}

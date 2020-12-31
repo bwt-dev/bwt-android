@@ -70,11 +70,16 @@ class BwtWorker(
 
             override fun onReady(bwt: BwtDaemon) {
                 Log.d("bwt-worker", "servers ready")
+                var services = mutableListOf<String>()
+                if (bwt.electrumAddr != null) services.add("Electrum")
+                if (bwt.httpAddr != null) services.add("HTTP")
+
                 setProgressAsync(
                     workDataOf(
                         "TYPE" to "ready",
                         "ELECTRUM_ADDR" to bwt.electrumAddr,
                         "HTTP_ADDR" to bwt.httpAddr,
+                        "SERVICES" to services.toTypedArray(),
                     )
                 )
                 setForegroundAsync(createForegroundInfo("Bitcoin Wallet Tracker is running."))
