@@ -58,7 +58,7 @@ class SettingsActivity : AppCompatActivity() {
                     if (TextUtils.isEmpty(text)) {
                         "In \"username:password\" format."
                     } else {
-                        text
+                        "${text.split(":")[0]}:*******"
                     }
                 }
             bitcoindWallet?.summaryProvider =
