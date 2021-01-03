@@ -12,10 +12,10 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.TaskStackBuilder
 import androidx.work.*
 import com.google.gson.Gson
-import dev.bwt.daemon.BwtConfig
-import dev.bwt.daemon.BwtDaemon
-import dev.bwt.daemon.BwtException
-import dev.bwt.daemon.ProgressNotifier
+import dev.bwt.libbwt.BwtException
+import dev.bwt.libbwt.daemon.BwtConfig
+import dev.bwt.libbwt.daemon.BwtDaemon
+import dev.bwt.libbwt.daemon.ProgressNotifier
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.supervisorScope

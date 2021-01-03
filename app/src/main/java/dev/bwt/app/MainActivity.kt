@@ -17,7 +17,7 @@ import androidx.lifecycle.Observer
 import androidx.preference.PreferenceManager
 import androidx.work.*
 import com.google.gson.Gson
-import dev.bwt.daemon.BwtConfig
+import dev.bwt.libbwt.daemon.BwtConfig
 import java.util.*
 
 class MainActivity : AppCompatActivity() {

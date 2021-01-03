@@ -1,2 +1,3 @@
+include ':libbwt'
 include ':app'
 rootProject.name = "Bitcoin Wallet Tracker"
