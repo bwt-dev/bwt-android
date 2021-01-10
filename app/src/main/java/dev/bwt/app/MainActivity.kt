@@ -76,11 +76,12 @@ class MainActivity : AppCompatActivity() {
         val pref = PreferenceManager.getDefaultSharedPreferences(this)
         val getStr = { name: String -> if (pref.contains(name)) pref.getString(name, "") else null }
         val getInt = { name: String -> if (pref.contains(name)) pref.getInt(name, 0) else null }
+        val getBool = { name: String -> pref.getBoolean(name, false) }
 
         val getStrIf = { bool_name: String, val_name: String ->
-            if (pref.getBoolean(bool_name, false)) getStr(val_name) else null }
+            if (getBool(bool_name)) getStr(val_name) else null }
         val getIntIf = { bool_name: String, val_name: String ->
-            if (pref.getBoolean(bool_name, false)) getInt(val_name) else null }
+            if (getBool(bool_name)) getInt(val_name) else null }
 
         return BwtConfig(
             network = getStr("network"),
@@ -90,6 +91,7 @@ class MainActivity : AppCompatActivity() {
             descriptors = getStr("descriptors")?.let { getLines(it) },
             xpubs = getStr("xpubs")?.let { getLines(it) },
             rescanSince = getIntIf("rescan", "rescan_since"),
+            forceRescan = getBool("force_rescan"),
             gapLimit = getInt("gap_limit"),
             initialImportSize = getInt("initial_import_size"),
             pollInterval = getInt("poll_interval")?.let { arrayOf(it, 0) },

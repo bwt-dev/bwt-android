@@ -33,7 +33,7 @@
         <SwitchPreferenceCompat
             app:key="rescan"
             app:summaryOff="When disabled, only transactions made from now on will be visible."
-            app:summaryOn="A full rescan from genesis may take up to 20-60 minutes. To speed this up, set the rescan date to when the wallet was created."
+            app:summaryOn="A full rescan from genesis may take up to several hours. To speed this up, set the rescan date to when the wallet was created."
             app:title="Rescan historical transactions" />
         <dev.bwt.app.DatePickerPreference
             app:dependency="rescan"
@@ -64,6 +64,9 @@
             app:title="HTTP server bind address"
             app:useSimpleSummaryProvider="true"
             app:dependency="http"/>
+        <SwitchPreferenceCompat
+            app:key="force_rescan"
+            app:title="Force rescan" />
         <SeekBarPreference
             android:max="500"
             android:min="20"
